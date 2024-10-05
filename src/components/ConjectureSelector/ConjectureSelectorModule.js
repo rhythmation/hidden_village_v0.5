@@ -60,7 +60,11 @@ const ConjectureSelectModule = (props) => {
     const fetchData = async () => {
       try {
         const result = await getConjectureList(addToCurricular);
-        setConjectureList(result);
+        if (result === null) {
+          console.warn("getConjectureList returned null result");
+        } else {
+          setConjectureList(result);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }

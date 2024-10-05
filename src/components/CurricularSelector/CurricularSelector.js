@@ -56,7 +56,11 @@ const CurricularSelectModule = (props) => {
     const fetchData = async () => {
       try {
         const result = await getCurricularList(getPlayGame());
+        if (result === null) {
+          console.warn("getCurricularList returned null result")
+        } else {
         setCurricularList(result);
+      }
       } catch (error) {
         console.error('Error fetching data:', error);
       }

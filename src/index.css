@@ -1,0 +1,9 @@
+:root {
+  --main-bg-color: #e6e1e1;
+  --primary-color: rgb(82, 78, 78);
+  --secondary-color: rgb(220, 220, 220);
+  color: black;
+  font-family: Roboto;
+  background-color: var(--main-bg-color);
+}
+

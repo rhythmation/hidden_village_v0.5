@@ -1,0 +1,72 @@
+.signin-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+h2 {
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+input {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+
+
+.back-home {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.back-home a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.back-home a:hover {
+    text-decoration: underline;
+}
+
+.signin-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.signin-buttons > button {
+    padding: 0.5rem 1rem;
+    width: 100%;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.signin-buttons > button:hover {
+    background-color: #0056b3;
+}
+
+.showPass-div {
+    padding-top: 0.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+.showPass-div > * {
+    width: max-content;
+}
+
+.showPass-div > input {
+    margin-bottom: 0.5rem;
+}

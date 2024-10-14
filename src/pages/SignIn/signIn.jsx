@@ -1,67 +1,62 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import "./signIn.css"
+import { useNavigate } from "react-router-dom";
+import "./signIn.css";
+import { useState } from "react";
+import { auth } from "../../services/Firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 function SignIn() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordHidden, setpasswordHidden] = useState(true)
-    const [mode, setMode] = useState('login')
+  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("")
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
+  const navigate = useNavigate();
 
-        if (mode === 'login') {
-            console.log("Login: ", email, password)
-        } else if (mode == 'create') {
-            console.log("Create Account: ", email, password)
-        }
+  function handleSubmit(e) {
+    e.preventDefault();
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        navigate("/")
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setErrorMessage("Invalid email or password")
+      });
+  }
 
-    }
+  function handleCreate() {
+    navigate("/signUp");
+  }
 
-    const showPassword = () => {
-        setpasswordHidden(!passwordHidden)
-    }
-
-    return (
-        <div className="signin-container">
-            <h2>Sign In</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type={passwordHidden ? "password" : "text"}
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <div className="showPass-div">
-                        <label htmlFor="showPass"> Show Password:</label>
-                        <input type="checkbox" name="showPass" onClick={showPassword}/>
-                    </div>
-                    
-                </div>
-                <div className="signin-buttons">
-                    <button type="submit" onClick={() => setMode('login')}>Log In</button>
-                    <button type="submit" onClick={() => setMode('create')}>Create Account</button>
-                </div>
-            </form>
-            <p className="back-home">
-                <Link to="/">Back to Home</Link>
-            </p>
+  return (
+    <div className="auth-container">
+      <h2> Sign in</h2>
+      <form onSubmit={handleSubmit} className="auth-form">
+        <input placeholder="example@email.com" onChange={(e) => setEmail(e.target.value)}></input>
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="password"
+          onChange={(e) => setPassword(e.target.value) }
+        ></input>
+        <div className="show-pass">
+          <input
+            onChange={() => setShowPassword(!showPassword)}
+            type="checkbox"
+          ></input>
+          <p> Show Password</p>
         </div>
-    );
+        {errorMessage ? <p className="error"> {errorMessage} </p> : null}
+        <div className="buttons">
+          <button type="submit"> Sign in</button>
+          <button onClick={handleCreate} type="button">
+            Go to:Create Account
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }
 
 export default SignIn;

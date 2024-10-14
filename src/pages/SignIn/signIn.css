@@ -1,72 +1,48 @@
-.signin-container {
-    max-width: 400px;
-    margin: 0 auto;
+
+
+.auth-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 400px;
+    height: 500px;
+    background-color: white;
+    border-radius: 15px;
     padding: 1rem;
 }
 
-h2 {
-    text-align: center;
+.auth-container > h2 {
+    font-size: 18px;
+    padding: 1rem;
+}
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.form-group {
-    margin-bottom: 1rem;
+.auth-form > input {
+    font-size: 14px;
 }
 
-label {
-    display: block;
-    margin-bottom: 0.5rem;
+.show-pass {
+    display: flex;
+    gap: 5px;
+    font-size: 14px;
 }
 
-input {
-    width: 100%;
-    padding: 0.5rem;
-    box-sizing: border-box;
-}
-
-
-
-.back-home {
+.buttons {
+    display: flex;
+    gap: 5px;
     margin-top: 1rem;
-    text-align: center;
 }
 
-.back-home a {
-    text-decoration: none;
-    color: #007bff;
-}
-
-.back-home a:hover {
-    text-decoration: underline;
-}
-
-.signin-buttons {
-    display: flex;
-    gap: 1rem;
-}
-
-.signin-buttons > button {
-    padding: 0.5rem 1rem;
-    width: 100%;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-}
-
-.signin-buttons > button:hover {
-    background-color: #0056b3;
-}
-
-.showPass-div {
-    padding-top: 0.5rem;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-.showPass-div > * {
-    width: max-content;
-}
-
-.showPass-div > input {
-    margin-bottom: 0.5rem;
+.buttons > button {
+    padding: 0.2rem;
 }

@@ -1,0 +1,12 @@
+.error {
+    color: red;
+}
+
+.valid {
+    color: green;
+}
+
+.resend {
+    color: rgb(0, 102, 255);
+    cursor: pointer;
+}

@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./signUp.css";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../services/Firebase/firebase";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendEmailVerification,
+} from "firebase/auth";
+import { auth } from "../../../services/Firebase/firebase";
 
 export default function SignUp() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [verified, setVerified] = useState(false);
+  const [user, setUser] = useState();
   const [passwordValidations, setPasswordValidations] = useState({
     minLength: false,
     hasUpperCase: false,
@@ -19,6 +26,40 @@ export default function SignUp() {
   const Auth = auth;
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let checkEmailVerified = null
+
+    if (emailVerificationSent) {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in
+          checkEmailVerified = setInterval(() => {
+            user.reload().then(() => {
+              if (user.emailVerified) {
+                clearInterval(checkEmailVerified); // Stop checking once verified
+                console.log("Email is verified!");
+                setVerified(true);
+                navigate("/");
+                // Take further actions like allowing access to the app or redirecting
+              } else {
+                console.log("Email not verified yet.");
+              }
+            });
+          }, 5000); // Check every 5 seconds
+        } else {
+          console.log("No user is signed in.");
+        }
+      });
+    }
+
+    return () => {
+      if (checkEmailVerified) {
+        clearInterval(checkEmailVerified)
+        console.log("interval cleared")
+      }
+    }
+  }, [emailVerificationSent]);
 
   useEffect(() => {
     // Dynamically check each password requirement
@@ -51,19 +92,46 @@ export default function SignUp() {
     e.preventDefault(); // Prevent default form submission behavior
     if (validate()) {
       setErrorMessage("");
-      // setEmail("")
-      // setPassword("")
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          console.log("Signed up");
           const user = userCredential.user;
-          navigate("/");
+          setUser(user);
+
+          sendEmailVerification(user)
+            .then(() => {
+              // Email verification sent!
+              console.log("Verification email sent.");
+              setEmailVerificationSent(true);
+            })
+            .catch((error) => {
+              console.error("Error sending verification email:", error);
+            });
+
+          // navigate("/verify");
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
 
-          setErrorMessage("There was an issue creating your account, try a different email")
+          setErrorMessage(
+            "There was an issue creating your account, try a different email"
+          );
+        });
+    }
+  }
+
+  function resendVerification() {
+    return null;
+
+    if (user !== null) {
+      sendEmailVerification(user)
+        .then(() => {
+          // Email verification sent!
+          console.log("Verification email sent.");
+          setEmailVerificationSent(true);
+        })
+        .catch((error) => {
+          console.error("Error sending verification email:", error);
         });
     }
   }
@@ -134,6 +202,15 @@ export default function SignUp() {
           </button>
         </div>
       </form>
+      {emailVerificationSent ? (
+        <div>
+          <p> Email verification sent! Click link in email to continue </p>
+          <p className="resend" onClick={resendVerification}>
+            {" "}
+            Resend Verification
+          </p>{" "}
+        </div>
+      ) : null}
     </div>
   );
 }

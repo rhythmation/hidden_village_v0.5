@@ -4,12 +4,12 @@ import Home from "./pages/Home/home.jsx";
 import Game from "./pages/game/Game.jsx";
 import GameEditor from "./pages/gameEditor/gameEditor.jsx";
 import Settings from "./pages/settings/settings.jsx";
-import SignIn from "./pages/signIn/signIn.jsx";
+import SignIn from "./pages/Auth/signIn/signIn.jsx";
 import UserManage from "./pages/UserManage/UserManage.jsx";
 import { firebaseInstance } from "./services/Firebase/firebase.js";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ProtectedRoute from "./components/util/ProtectedRoute.jsx";
-import SignUp from "./pages/signUp/signUp.jsx";
+import SignUp from "./pages/Auth/signUp/signUp.jsx";
 const firebase = firebaseInstance;
 
 const auth = getAuth(firebaseInstance);
@@ -21,8 +21,12 @@ const App = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user !== null) {
-        setisLoggedIn(true);
-        console.log("Logged in", user);
+        if (user.emailVerified) {
+          setisLoggedIn(true);
+          console.log("Logged in", user);
+        } else {
+          console.log("Need to verify user")
+        }
       } else {
         setisLoggedIn(false);
         console.log("Logged out");

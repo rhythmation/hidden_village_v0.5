@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import "./signIn.css";
 import { useState } from "react";
-import { auth } from "../../services/Firebase/firebase";
+import { auth } from "../../../services/Firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 function SignIn() {
@@ -17,7 +17,12 @@ function SignIn() {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        navigate("/")
+        if (user.emailVerified) {
+            navigate("/")
+        } else {
+          setErrorMessage("Not verified, check email for link")
+        }
+       
       })
       .catch((error) => {
         const errorCode = error.code;

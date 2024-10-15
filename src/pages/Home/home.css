@@ -31,3 +31,7 @@
 .home-items > *:hover {
     background-color: rgb(48, 48, 48);
 }
+
+#user-info {
+    padding: 0.5rem;
+}

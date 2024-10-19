@@ -2,13 +2,14 @@ import { useNavigate } from "react-router-dom";
 import "./signIn.css";
 import { useState } from "react";
 import { auth } from "../../../services/Firebase/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail} from "firebase/auth";
 
 function SignIn() {
   const [password, setPassword] = useState("")
   const [email, setEmail] = useState("")
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("")
+  const [errorMessage, setErrorMessage] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -35,6 +36,23 @@ function SignIn() {
     navigate("/signUp");
   }
 
+  function handleResetPassword() {
+    if (!email) {
+      setResetMessage("Please enter your email address");
+      return;
+    }
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        setResetMessage("Password reset email sent. Check your inbox.");
+        setErrorMessage("");
+      })
+      .catch((error) => {
+        setResetMessage("");
+        setErrorMessage("Failed to send reset email. Please try again.");
+      });
+  }
+
+
   return (
     <div className="auth-container">
       <h2> Sign in</h2>
@@ -59,6 +77,10 @@ function SignIn() {
             Go to:Create Account
           </button>
         </div>
+        <button type="button" onClick={handleResetPassword} className="reset-button">
+          Forgot Password?
+        </button>
+        {resetMessage && <p className="reset-message">{resetMessage}</p>}
       </form>
     </div>
   );

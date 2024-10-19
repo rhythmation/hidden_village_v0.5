@@ -14,7 +14,6 @@ export default function SignUp() {
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
-  const [verified, setVerified] = useState(false);
   const [user, setUser] = useState();
   const [passwordValidations, setPasswordValidations] = useState({
     minLength: false,
@@ -22,43 +21,42 @@ export default function SignUp() {
     hasLowerCase: false,
     hasNumber: false,
   });
-
-  const Auth = auth;
+  const [tooManyRequests, setTooManyRequests] = useState(false); // Track if user hit rate limit
+  const [lastEmailSentTime, setLastEmailSentTime] = useState(null); // Track last email time
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    let checkEmailVerified = null
+    let checkEmailVerified = null;
 
     if (emailVerificationSent) {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           // User is signed in
           checkEmailVerified = setInterval(() => {
-            user.reload().then(() => {
-              if (user.emailVerified) {
-                clearInterval(checkEmailVerified); // Stop checking once verified
-                console.log("Email is verified!");
-                setVerified(true);
-                navigate("/");
-                // Take further actions like allowing access to the app or redirecting
-              } else {
-                console.log("Email not verified yet.");
-              }
-            });
+            user
+              .reload()
+              .then(() => {
+                if (user.emailVerified) {
+                  clearInterval(checkEmailVerified); // Stop checking once verified
+                  setVerified(true);
+                  navigate("/");
+                }
+              })
+              .catch((error) => {
+                console.error("Error reloading user:", error);
+              });
           }, 5000); // Check every 5 seconds
-        } else {
-          console.log("No user is signed in.");
-        }
+        } 
       });
     }
 
     return () => {
       if (checkEmailVerified) {
-        clearInterval(checkEmailVerified)
-        console.log("interval cleared")
+        clearInterval(checkEmailVerified);
+        console.log("interval cleared");
       }
-    }
+    };
   }, [emailVerificationSent]);
 
   useEffect(() => {
@@ -73,6 +71,16 @@ export default function SignUp() {
     setPasswordValidations(requirements);
   }, [password]);
 
+  useEffect(() => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex pattern
+
+    if (email != "" && !emailPattern.test(email)) {
+      setErrorMessage("Invalid email format"); 
+    } else {
+      setErrorMessage("")
+    }
+  }, [email])
+
   function validate() {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex pattern
     const passwordPattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/; // Password pattern
@@ -81,6 +89,7 @@ export default function SignUp() {
       setErrorMessage("Invalid email format");
       return false;
     } else if (!passwordPattern.test(password)) {
+      setErrorMessage("Password does not meet requirements");
       return false;
     } else {
       setErrorMessage("");
@@ -99,41 +108,48 @@ export default function SignUp() {
 
           sendEmailVerification(user)
             .then(() => {
-              // Email verification sent!
-              console.log("Verification email sent.");
               setEmailVerificationSent(true);
+              setLastEmailSentTime(Date.now()); // Track the time the email was sent
             })
             .catch((error) => {
-              console.error("Error sending verification email:", error);
+              handleEmailVerificationError(error);
             });
-
-          // navigate("/verify");
         })
         .catch((error) => {
-          const errorCode = error.code;
           const errorMessage = error.message;
-
-          setErrorMessage(
-            "There was an issue creating your account, try a different email"
-          );
+          setErrorMessage("There was an issue creating your account. Try a different email.");
         });
     }
   }
 
   function resendVerification() {
-    return null;
+    const now = Date.now();
+    if (lastEmailSentTime && now - lastEmailSentTime < 60000) {
+      setErrorMessage("Please wait before requesting another verification email.");
+      return;
+    } 
 
     if (user !== null) {
       sendEmailVerification(user)
         .then(() => {
-          // Email verification sent!
-          console.log("Verification email sent.");
+          setErrorMessage("");
           setEmailVerificationSent(true);
+          setLastEmailSentTime(now); // Update the last email sent time
         })
         .catch((error) => {
-          console.error("Error sending verification email:", error);
+          handleEmailVerificationError(error);
         });
     }
+  }
+
+  function handleEmailVerificationError(error) {
+    if (error.code === "auth/too-many-requests") {
+      setTooManyRequests(true);
+      setErrorMessage("Too many requests. Please wait a while before trying again.");
+    } else {
+      setErrorMessage("Error sending verification email. Please try again later.");
+    }
+    console.error("Error sending verification email:", error);
   }
 
   function handleSignIn() {
@@ -164,7 +180,7 @@ export default function SignUp() {
           <p>Show Password</p>
         </div>
 
-        {password != "" &&
+        {password !== "" &&
         Object.values(passwordValidations).some(
           (validation) => validation !== true
         ) ? (
@@ -172,20 +188,13 @@ export default function SignUp() {
             <p>Password must include:</p>
             <ul>
               <li className={passwordValidations.minLength ? "valid" : "error"}>
-                At least 8 characters{" "}
-                {passwordValidations.minLength ? "✓" : "✗"}
+                At least 8 characters {passwordValidations.minLength ? "✓" : "✗"}
               </li>
-              <li
-                className={passwordValidations.hasUpperCase ? "valid" : "error"}
-              >
-                At least one uppercase letter{" "}
-                {passwordValidations.hasUpperCase ? "✓" : "✗"}
+              <li className={passwordValidations.hasUpperCase ? "valid" : "error"}>
+                At least one uppercase letter {passwordValidations.hasUpperCase ? "✓" : "✗"}
               </li>
-              <li
-                className={passwordValidations.hasLowerCase ? "valid" : "error"}
-              >
-                At least one lowercase letter{" "}
-                {passwordValidations.hasLowerCase ? "✓" : "✗"}
+              <li className={passwordValidations.hasLowerCase ? "valid" : "error"}>
+                At least one lowercase letter {passwordValidations.hasLowerCase ? "✓" : "✗"}
               </li>
               <li className={passwordValidations.hasNumber ? "valid" : "error"}>
                 At least one number {passwordValidations.hasNumber ? "✓" : "✗"}
@@ -204,11 +213,14 @@ export default function SignUp() {
       </form>
       {emailVerificationSent ? (
         <div>
-          <p> Email verification sent! Click link in email to continue </p>
-          <p className="resend" onClick={resendVerification}>
-            {" "}
-            Resend Verification
-          </p>{" "}
+          {errorMessage ? null : <p>Email verification sent! Click the link in the email to continue.</p> }
+          {tooManyRequests ? (
+            <p>Please wait before trying to resend the verification email.</p>
+          ) : (
+            <p className="resend" onClick={resendVerification}>
+              Resend Verification
+            </p>
+          )}
         </div>
       ) : null}
     </div>

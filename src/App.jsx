@@ -23,13 +23,9 @@ const App = () => {
       if (user !== null) {
         if (user.emailVerified) {
           setisLoggedIn(true);
-          console.log("Logged in", user);
-        } else {
-          console.log("Need to verify user")
         }
       } else {
         setisLoggedIn(false);
-        console.log("Logged out");
       }
       setLoading(false)
     });

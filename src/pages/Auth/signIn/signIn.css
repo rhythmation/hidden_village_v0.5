@@ -46,3 +46,7 @@
 .buttons > button {
     padding: 0.2rem;
 }
+
+.green {
+    color: green;
+}

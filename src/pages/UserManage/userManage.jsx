@@ -1,50 +1,48 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { firebaseDB, firebaseInstance } from "../../services/Firebase/firebase";
+import { firebaseDB } from "../../services/Firebase/firebase";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext"; // Import useAuth to get the current user
 
 function UserManage() {
   const [myStudents, setMyStudents] = useState(null);
-  const auth = getAuth(firebaseInstance);
   const formsRef = useRef();
+  const navigate = useNavigate();
+  const { user } = useAuth(); // Get the user from the auth context
 
   useEffect(() => {
+    // Fetch students only if user exists and students haven't been loaded
+    if (user && !myStudents) {
+      const userRef = doc(firebaseDB, "users", user.email);
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && !myStudents) {
-        const userRef = doc(firebaseDB, "users", user.email);
-
-        getDoc(userRef)
-          .then((docSnap) => {
-            if (docSnap.exists()) {
-              setMyStudents(docSnap.data().students || []);
-            }
-          })
-          .catch((error) => {
-            console.error("Error getting document:", error);
-          });
-      } 
-    });
-
-    return () => unsubscribe();
-  }, []);
+      getDoc(userRef)
+        .then((docSnap) => {
+          if (docSnap.exists()) {
+            setMyStudents(docSnap.data().students || []);
+          }
+        })
+        .catch((error) => {
+          console.error("Error getting document:", error);
+        });
+    }
+  }, [user, myStudents]);
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    const updatedStudents = Array.from(formsRef.current.querySelectorAll("form")).map(
-      (form) => {
-        const formData = new FormData(form);
-        return {
-          id: formData.get("id"),
-          username: formData.get("username"),
-          password: formData.get("password"),
-        };
-      }
-    );
+    const updatedStudents = Array.from(
+      formsRef.current.querySelectorAll("form")
+    ).map((form) => {
+      const formData = new FormData(form);
+      return {
+        id: formData.get("id"),
+        username: formData.get("username"),
+        password: formData.get("password"),
+      };
+    });
 
-    // Update in Firestore
-    const userRef = doc(firebaseDB, "users", auth.currentUser.email);
+    // Update students in Firestore
+    const userRef = doc(firebaseDB, "users", user.email);
     updateDoc(userRef, { students: updatedStudents })
       .then(() => {
         console.log("Students updated successfully");
@@ -78,16 +76,15 @@ function UserManage() {
         {myStudents.map((studentObj) => (
           <form key={studentObj.id}>
             <div>
-              <input
-                type="hidden"
-                name="id"
-                defaultValue={studentObj.id}
-              />
+              <input type="hidden" name="id" defaultValue={studentObj.id} />
               <label> Student Name: </label>
               <input name="username" defaultValue={studentObj.username} />
               <label> Password: </label>
               <input name="password" defaultValue={studentObj.password} />
-              <button type="button" onClick={() => removeStudent(studentObj.id)}>
+              <button
+                type="button"
+                onClick={() => removeStudent(studentObj.id)}
+              >
                 Remove Student
               </button>
             </div>
@@ -100,6 +97,7 @@ function UserManage() {
       <button onClick={addStudent} type="button">
         Add Student
       </button>
+      <button onClick={() => navigate("/")}> Go Back </button>
     </div>
   );
 }

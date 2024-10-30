@@ -6,46 +6,52 @@ import GameEditor from "./pages/gameEditor/gameEditor.jsx";
 import Settings from "./pages/settings/settings.jsx";
 import SignIn from "./pages/Auth/signIn/signIn.jsx";
 import UserManage from "./pages/UserManage/UserManage.jsx";
-import { firebaseInstance } from "./services/Firebase/firebase.js";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ProtectedRoute from "./components/util/ProtectedRoute.jsx";
 import SignUp from "./pages/Auth/signUp/signUp.jsx";
-const firebase = firebaseInstance;
-
-const auth = getAuth(firebaseInstance);
+import StudentAuth from "./pages/Auth/studentAuth/studentAuth.jsx";
+import { useAuth } from "./contexts/AuthContext.jsx";
+import AdminRoute from "./components/util/AdminRoute.jsx";
 
 const App = () => {
   const [isLoggedIn, setisLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true); 
+  const [adminStatus, setAdminStatus] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user !== null) {
-        if (user.emailVerified) {
-          setisLoggedIn(true);
-        }
+    if (user) {
+      if (user.isAnonymous) {
+        setisLoggedIn(true);
+      } else if (user.emailVerified) {
+        setAdminStatus(true);
+        setisLoggedIn(true);
       } else {
         setisLoggedIn(false);
       }
-      setLoading(false)
-    });
-  }, []);
-  if (loading) {
-    return <div>Loading...</div>
-  }
+    }
+  }, [user]);
+
   return (
     <Router>
       <Routes>
-        <Route path="/signIn" element={<SignIn />} />
-        <Route path="/signUp" element={<SignUp />} />
+        <Route path="/signIn" element={<StudentAuth />} />
+        <Route path="/AdminSignIn" element={<SignIn />} />
+        <Route path="/AdminSignUp" element={<SignUp />} />
 
-        <Route element={<ProtectedRoute isLoggedIn={isLoggedIn}/>}>
+        {/* Protect routes based on login status */}
+        <Route element={<ProtectedRoute loginStatus={isLoggedIn} />}>
           <Route path="/" element={<Home />} />
           <Route path="/game" element={<Game />} />
-          <Route path="/gameEditor" element={<GameEditor />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/userManage" element={<UserManage />} />
+
+          {/* Protect certain routes based on admin status */}
+          <Route element={<AdminRoute adminStatus={adminStatus} />}>
+            <Route path="/userManage" element={<UserManage />} />
+            <Route path="/gameEditor" element={<GameEditor />} />
+          </Route>
         </Route>
+
+        {/* Any undefined paths redirect to student sign in */}
+        <Route path="*" element={<StudentAuth/>} />
       </Routes>
     </Router>
   );

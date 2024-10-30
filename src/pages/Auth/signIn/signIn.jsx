@@ -34,7 +34,7 @@ function SignIn() {
   }
 
   function handleCreate() {
-    navigate("/signUp");
+    navigate("/AdminSignUp");
   }
 
   function handleResend() {
@@ -119,6 +119,7 @@ function SignIn() {
         <button type="button" onClick={handleResetPassword} className="reset-button">
           Forgot Password?
         </button>
+      <button className="student-login" onClick={() => navigate("/signIn")}> Go to: Student Login</button>
         {resetMessage && <p className="reset-message">{resetMessage}</p>}
       </form>
     </div>

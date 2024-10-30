@@ -1,31 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./home.css";
 import { auth } from "../../services/Firebase/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth"
+import { signOut } from "firebase/auth";
 import { firebaseDB } from "../../services/Firebase/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useAuth } from "../../contexts/AuthContext";
+import Loading from "../../components/common/loading/loading";
 
 function Home() {
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false)
+  const { user } = useAuth(); 
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user.email);
+    if (user) {
+      setLoading(false); // Set loading to false when user is available
 
+      if (!user.isAnonymous) {
+        setIsAdmin(true)
+        setCurrentUser(user.email);
         const userRef = doc(firebaseDB, "users", user.email);
-        
+
         getDoc(userRef)
           .then((docSnap) => {
             if (!docSnap.exists()) {
-              // User document doesn't exist, create it
-              const userData = {
-                students: [],
-              };
+              const userData = { students: [] };
 
-              return setDoc(userRef, userData)
+              setDoc(userRef, userData)
                 .then(() => {
                   console.log("User document created successfully");
                 })
@@ -39,12 +43,11 @@ function Home() {
           .catch((error) => {
             console.error("Error checking user document:", error);
           });
+      } else {
+        setCurrentUser("Student Account");
       }
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [navigate]);
+    }
+  }, [user]);
 
   function handleLogOut() {
     signOut(auth)
@@ -56,29 +59,22 @@ function Home() {
       });
   }
 
+  // Show loading indicator while user data is being fetched
+  if (loading) {
+    return <Loading/>;
+  }
+
   return (
     <div>
-      <p id="user-info"> Signed in as: {currentUser}</p>
+      <p id="user-info">Signed in as: {currentUser}</p>
       <div className="home-container">
         <div className="home-items">
-          <div onClick={() => handleLogOut()} className="home=link">
-            {" "}
-            Log Out
-          </div>
-          <Link className="home-link" to="/userManage">
-            User Management
-          </Link>
-          <Link className="home-link" to="/game">
-            {" "}
-            Play Game
-          </Link>
-          <Link className="home-link" to="/gameEditor">
-            Editor
-          </Link>
-          <Link className="home-link" to="/settings">
-            Settings
-          </Link>
-          <button>Get Data</button>
+          <div onClick={handleLogOut} className="home-link">Log Out</div>
+          {isAdmin ? <Link className="home-link" to="/userManage">User Management</Link> : null }
+          <Link className="home-link" to="/game">Play Game</Link>
+          {isAdmin ? <Link className="home-link" to="/gameEditor">Editor</Link> : null}
+          <Link className="home-link" to="/settings">Settings</Link>
+          {isAdmin ? <button>Get Data</button> : null }
         </div>
       </div>
     </div>

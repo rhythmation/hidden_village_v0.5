@@ -232,3 +232,140 @@ export function calculateFaceDepth(poseLandmarks) {
 };
 
 export { enrichLandmarks };
+
+
+
+/**
+ *********************************************************************************
+ * The following section contains debugging for landmark groupings defined above *
+ *********************************************************************************
+ **/
+
+// To uncomment, select and press "Ctrl/Cmd + /""
+
+// /**
+//  * Prints all landmarks and their corresponding numeric constants
+//  * @param {Object} pose - The pose object containing landmark definitions
+//  */
+// function printLandmarks(pose) {
+//   try {
+//       if (!pose || typeof pose !== 'object') {
+//           console.log(`${pose} is not yet available`);
+//           return;
+//       }
+
+//       console.log(`=== ${Object.prototype.toString.call(pose).slice(8, -1)} LANDMARKS AND NUMERIC CONSTANTS ===\n`);
+      
+//       const entries = Object.entries(pose).sort((a, b) => a[1] - b[1]);
+//       entries.forEach(([name, value]) => {
+//           console.log(`${name.padEnd(25)}: ${value}`);
+//       });
+      
+//       console.log(`\nTotal number of landmarks: ${entries.length}`);
+//   } catch (error) {
+//       console.error(`Error printing landmarks:`, error);
+//   }
+// }
+
+// /**
+// * UTILITY function. Prints a formatted single landmark grouping
+// * @param {string} groupName - Name of the landmark grouping
+// * @param {Object} landmarks - Object containing the landmarks in the group
+// */
+// function printGrouping(groupName, landmarks) {
+//   console.log(`\n=== ${groupName} ===`);
+//   Object.entries(landmarks).forEach(([landmarkName, value]) => {
+//       console.log(`${landmarkName.padEnd(25)}: ${value}`);
+//   });
+// }
+
+// /**
+// * Prints all standard landmark groupings (non-segment angles)
+// */
+// function printAllGroupings() {
+//   console.log('\n========== LANDMARK GROUPINGS ==========');
+//   Object.entries(LANDMARK_GROUPINGS).forEach(([groupName, landmarks]) => {
+//       printGrouping(groupName, landmarks);
+//   });
+// }
+
+// /**
+// * Prints information for a specific landmark grouping by name
+// * @param {string} groupingName - Name of the grouping to print
+// */
+// function printSpecificGrouping(groupingName) {
+//   const landmarks = LANDMARK_GROUPINGS[groupingName];
+//   if (!landmarks) {
+//       console.log(`Grouping "${groupingName}" not found in LANDMARK_GROUPINGS`);
+//       return;
+//   }
+//   printGrouping(groupingName, landmarks);
+// }
+
+// /**
+// * Prints all segment angle groupings with their landmark references
+// */
+// function printSegmentAngleGroupings() {
+//   console.log('\n========== SEGMENT ANGLE GROUPINGS ==========');
+//   Object.entries(SEGMENT_ANGLE_LANDMARKS).forEach(([segmentName, landmarks]) => {
+//       console.log(`\n=== ${segmentName} ===`);
+//       Object.entries(landmarks).forEach(([pointName, landmarkIndex]) => {
+//           const landmarkName = Object.entries(POSE_LANDMARKS).find(
+//               ([, value]) => value === landmarkIndex
+//           )?.[0] || 'Unknown';
+//           console.log(`${pointName.padEnd(25)}: ${landmarkIndex} (${landmarkName})`);
+//       });
+//   });
+// }
+
+// /**
+// * Prints detailed information about a specific segment angle grouping
+// * @param {string} segmentName - Name of the segment angle grouping to print
+// */
+// function printSpecificSegmentAngle(segmentName) {
+//   const landmarks = SEGMENT_ANGLE_LANDMARKS[segmentName];
+//   if (!landmarks) {
+//       console.log(`Segment "${segmentName}" not found in SEGMENT_ANGLE_LANDMARKS`);
+//       return;
+//   }
+
+//   console.log(`\n=== ${segmentName} Segment Angle Points ===`);
+//   Object.entries(landmarks).forEach(([pointName, landmarkIndex]) => {
+//       const landmarkName = Object.entries(POSE_LANDMARKS).find(
+//           ([, value]) => value === landmarkIndex
+//       )?.[0] || 'Unknown';
+//       console.log(`${pointName.padEnd(25)}: ${landmarkIndex} (${landmarkName})`);
+//   });
+// }
+
+// // Debug output wrapper function
+// function runDebugTests() {
+//   console.log("Starting debug output...\n");
+
+//   try {
+//       // Print all landmarks
+//       console.log("1. Printing all landmarks:");
+//       printLandmarks(POSE_LANDMARKS);
+
+//       // Print all groupings
+//       console.log("\n2. Printing all groupings:");
+//       printAllGroupings();
+
+//       // Print a specific grouping
+//       console.log("\n3. Printing specific grouping:");
+//       printSpecificGrouping('BICEP_LANDMARKS');
+
+//       // Print all segment angle groupings
+//       console.log("\n4. Printing all segment angle groupings:");
+//       printSegmentAngleGroupings();
+
+//       // Print a specific segment angle
+//       console.log("\n5. Printing specific segment angle:");
+//       printSpecificSegmentAngle('RIGHT_BICEP');
+//   } catch (error) {
+//       console.error("Error during debug tests:", error);
+//   }
+// }
+
+// // Run the debug tests
+// runDebugTests();

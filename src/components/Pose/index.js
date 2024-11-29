@@ -15,17 +15,15 @@ const COLOR_SCALES = {
   stroke: scale([blue.toString(16), pink.toString(16)]).domain([0, 100])
 };
 
-const FILL_COLOR = yellow;
-const STROKE_COLOR = blue;
-
 // ****************************************************************
 // Utility functions
 // ****************************************************************
-const magnitude = (x1, y1, x2, y2) => {
-  const dx = x1 - x2;
-  const dy = y1 - y2;
-  return Math.sqrt(dx * dx + dy * dy);
+const magnitude = (point1, point2) => {
+  return Math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2);
 };
+
+const FILL_COLOR = yellow;
+const STROKE_COLOR = blue;
 
 const connectLandmarks = (
   landmarks,
@@ -59,8 +57,7 @@ const connectLandmarks = (
   g.endFill();
 }
 
-//------------------ORIGINAL CODE (to be modified)-------------------
-
+//--------------------------------ORIGINAL CODE-----------------------------------
 const connectFinger = (landmarks, g) => {
   g.beginFill(FILL_COLOR);
   g.lineStyle(4, STROKE_COLOR, 1);

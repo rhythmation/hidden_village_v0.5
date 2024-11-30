@@ -5,7 +5,7 @@ import {
   FACEMESH_FACE_OVAL,
   POSE_LANDMARKS,
 } from "@mediapipe/holistic/holistic";
-import { blue, yellow, pink } from "../../utils/colors";
+import { blue, yellow, pink } from "../../util/colors";
 import { LANDMARK_GROUPINGS } from "./landmark_utilities";
 import { landmarkToCoordinates, objMap } from "./pose_drawing_utilities";
 import { scale } from "chroma-js";

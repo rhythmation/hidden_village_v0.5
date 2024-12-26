@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./home.css";
 import { auth } from "../../services/Firebase/firebase";
@@ -10,43 +10,40 @@ import Loading from "../../components/common/loading/loading";
 
 function Home() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false)
-  const { user } = useAuth(); 
 
   useEffect(() => {
-    if (user) {
-      setLoading(false); // Set loading to false when user is available
+    const initializeUser = async () => {
+      if (user) {
+        if (!user.isAnonymous) {
+          setIsAdmin(true);
+          setCurrentUser(user.email);
 
-      if (!user.isAnonymous) {
-        setIsAdmin(true)
-        setCurrentUser(user.email);
-        const userRef = doc(firebaseDB, "users", user.email);
+          const userRef = doc(firebaseDB, "users", user.email);
 
-        getDoc(userRef)
-          .then((docSnap) => {
+          try {
+            const docSnap = await getDoc(userRef);
             if (!docSnap.exists()) {
               const userData = { students: [] };
-
-              setDoc(userRef, userData)
-                .then(() => {
-                  console.log("User document created successfully");
-                })
-                .catch((error) => {
-                  console.error("Error creating user document:", error);
-                });
+              await setDoc(userRef, userData);
+              console.log("User document created successfully");
             } else {
               console.log("User document already exists");
             }
-          })
-          .catch((error) => {
-            console.error("Error checking user document:", error);
-          });
-      } else {
-        setCurrentUser("Student Account");
+          } catch (error) {
+            console.error("Error handling user document:", error);
+          }
+        } else {
+          setCurrentUser("Student Account");
+        }
+        setLoading(false);
       }
-    }
+    };
+
+    initializeUser();
   }, [user]);
 
   function handleLogOut() {
@@ -59,9 +56,8 @@ function Home() {
       });
   }
 
-  // Show loading indicator while user data is being fetched
   if (loading) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   return (
@@ -70,11 +66,11 @@ function Home() {
       <div className="home-container">
         <div className="home-items">
           <div onClick={handleLogOut} className="home-link">Log Out</div>
-          {isAdmin ? <Link className="home-link" to="/userManage">User Management</Link> : null }
+          {isAdmin && <Link className="home-link" to="/userManage">User Management</Link>}
           <Link className="home-link" to="/game">Play Game</Link>
-          {isAdmin ? <Link className="home-link" to="/gameEditor">Editor</Link> : null}
+          {isAdmin && <Link className="home-link" to="/gameEditor">Editor</Link>}
           <Link className="home-link" to="/settings">Settings</Link>
-          {isAdmin ? <button>Get Data</button> : null }
+          {isAdmin && <button>Get Data</button>}
         </div>
       </div>
     </div>

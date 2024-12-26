@@ -6,6 +6,7 @@ const Loader = () => {
       <h2 className="message">
         Loading...
         <br />
+        {/* WE CAN REMOVE THIS FROM HERE AND SHOW IT AS A POPUP ON PAGES ACTUALLY REQUIRING CAMERA TO BE ON */}
         Allow the browser to <br />
         use your webcam...
       </h2>

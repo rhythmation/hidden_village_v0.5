@@ -1,11 +1,11 @@
 import { useCallback, useState, forwardRef } from "react";
-import { Graphics, Container } from "@inlet/react-pixi";
-import { Graphics as PIXIGraphics } from "@pixi/graphics";
+import { Graphics, Container } from "@pixi/react"; // Updated import for latest pixi.js
+import { Graphics as PIXIGraphics } from "pixi.js"; // Updated import for pixi.js directly
 import {
   FACEMESH_FACE_OVAL,
   POSE_LANDMARKS,
 } from "@mediapipe/holistic/holistic";
-import { blue, yellow, pink } from "../../util/colors";
+import { blue, yellow, pink } from "../util/colors.jsx";
 import { LANDMARK_GROUPINGS } from "./landmark_utilities";
 import { landmarkToCoordinates, objMap } from "./pose_drawing_utilities";
 import { scale } from "chroma-js";
@@ -39,14 +39,16 @@ const connectLandmarks = (
   if (similarityScores && similarityScores.length > 1 && similarityScoreSegment) {
     const score = similarityScores.find((score) => score.segment === similarityScoreSegment);
     if (score) {
-      similarity =score.similarityScore;
+      similarity = score.similarityScore;
     }
   }
 
-  const fillColor = similarity!== undefined 
-      ? parseInt(COLOR_SCALES.fill(similarity).hex().substring(1), 16) : yellow;
+  const fillColor = similarity !== undefined
+    ? parseInt(COLOR_SCALES.fill(similarity).hex().substring(1), 16)
+    : yellow;
   const strokeColor = similarity !== undefined
-      ? parseInt(COLOR_SCALES.stroke(similarity).hex().substring(1), 16) : blue;
+    ? parseInt(COLOR_SCALES.stroke(similarity).hex().substring(1), 16)
+    : blue;
 
   g.beginFill(fillColor);
   g.lineStyle(4, strokeColor, 1);
@@ -290,200 +292,23 @@ const drawThighs = (poseData, g, armWidth, width, height, similarityScores) => {
   }
 };
 
-const drawTorso = (poseData, g, width, height, similarityScores) => {
-  let torsoCoords = objMap(
-    LANDMARK_GROUPINGS.TORSO_LANDMARKS,
-    landmarkToCoordinates(poseData.poseLandmarks, width, height)
-  );
-  connectLandmarks(
-    Object.values(torsoCoords),
-    g,
-    width,
-    height,
-    similarityScores
-  );
-};
+//-----------------------------------------------END OF ORIGINAL CODE-------------------------------------------------
 
-const drawShins = (poseData, g, armWidth, width, height, similarityScores) => {
-  const generalCoords = objMap(
-    LANDMARK_GROUPINGS.SHIN_LANDMARKS,
-    landmarkToCoordinates(poseData.poseLandmarks, width, height)
-  );
-  if (generalCoords.RIGHT_KNEE.visibility > 0.6) {
-    const rightShinCoords = [
-      {
-        x: generalCoords.RIGHT_KNEE.x + armWidth,
-        y: generalCoords.RIGHT_KNEE.y + armWidth,
-      },
-      {
-        x: generalCoords.RIGHT_KNEE.x - armWidth,
-        y: generalCoords.RIGHT_KNEE.y - armWidth,
-      },
-      generalCoords.RIGHT_ANKLE,
-    ];
-    connectLandmarks(rightShinCoords, g, width, height, similarityScores);
-  }
-  if (generalCoords.LEFT_KNEE.visibility > 0.6) {
-    const leftShinCoords = [
-      {
-        x: generalCoords.LEFT_KNEE.x + armWidth,
-        y: generalCoords.LEFT_KNEE.y + armWidth,
-      },
-      {
-        x: generalCoords.LEFT_KNEE.x - armWidth,
-        y: generalCoords.LEFT_KNEE.y - armWidth,
-      },
-      generalCoords.LEFT_ANKLE,
-    ];
-
-    connectLandmarks(leftShinCoords, g, width, height, similarityScores);
-  }
-};
-
-const drawAbdomen = (poseData, g, width, height) => {
-  let abdomenCoords = objMap(
-    LANDMARK_GROUPINGS.ABDOMEN_LANDMARKS,
-    landmarkToCoordinates(poseData.poseLandmarks, width, height)
-  );
-  const radius = magnitude(abdomenCoords.PELVIS, abdomenCoords.LEFT_HIP); //*0.8
-  g.beginFill(FILL_COLOR);
-  g.drawCircle(abdomenCoords.PELVIS.x, abdomenCoords.PELVIS.y, radius);
-  g.endFill();
-};
-
-const drawHands = (poseData, g, width, height, similarityScores) => {
-  const fingerLandmarks = [
-    LANDMARK_GROUPINGS.THUMB_LANDMARKS,
-    LANDMARK_GROUPINGS.INDEX_FINGER_LANDMARKS,
-    LANDMARK_GROUPINGS.MIDDLE_FINGER_LANDMARKS,
-    LANDMARK_GROUPINGS.RING_FINGER_LANDMARKS,
-    LANDMARK_GROUPINGS.PINKY_LANDMARKS,
-  ];
-  if (poseData.rightHandLandmarks) {
-    let rightPalmCoords = objMap(
-      LANDMARK_GROUPINGS.PALM_LANDMARKS,
-      landmarkToCoordinates(poseData.rightHandLandmarks, width, height)
-    );
-    connectLandmarks(
-      Object.values(rightPalmCoords),
-      g,
-      width,
-      height,
-      similarityScores
-    );
-    let rightFingers = fingerLandmarks.map((fingerLandmarks) =>
-      objMap(
-        fingerLandmarks,
-        landmarkToCoordinates(poseData.rightHandLandmarks, width, height)
-      )
-    );
-    rightFingers.forEach((finger) => connectFinger(Object.values(finger), g));
-  }
-  if (poseData.leftHandLandmarks) {
-    let leftPalmCoords = objMap(
-      LANDMARK_GROUPINGS.PALM_LANDMARKS,
-      landmarkToCoordinates(poseData.leftHandLandmarks, width, height)
-    );
-    connectLandmarks(
-      Object.values(leftPalmCoords),
-      g,
-      width,
-      height,
-      similarityScores
-    );
-    let leftFingers = fingerLandmarks.map((fingerLandmarks) =>
-      objMap(
-        fingerLandmarks,
-        landmarkToCoordinates(poseData.leftHandLandmarks, width, height)
-      )
-    );
-    leftFingers.forEach((finger) => connectFinger(Object.values(finger), g));
-  }
-};
-
-// ****************************************************************
-// Component Logic
-// ****************************************************************
-
-const Pose = forwardRef((props, ref) => {
-  const [armWidth, setArmWidth] = useState(0);
-  const { colAttr, similarityScores, modelBodySegments } = props;
-  const { width, height } = colAttr;
-  const draw = useCallback(
-    (g) => {
-      g.clear();
-      if (props.poseData.faceLandmarks) {
-        drawFace(props.poseData, g, width, height, similarityScores);
-      }
-      if (props.poseData.poseLandmarks) {
-        setArmWidth(calculateArmWidth(props.poseData, width, height));
-        // NOTE: Order of drawing body section matters, do not reorder
-        drawTorso(props.poseData, g, width, height, similarityScores);
-        drawAbdomen(props.poseData, g, width, height);
-        drawBiceps(
-          props.poseData,
-          g,
-          armWidth,
-          width,
-          height,
-          similarityScores
-        );
-        drawForearms(
-          props.poseData,
-          g,
-          armWidth,
-          width,
-          height,
-          similarityScores
-        );
-        drawThighs(
-          props.poseData,
-          g,
-          armWidth,
-          width,
-          height,
-          similarityScores
-        );
-        drawShins(props.poseData, g, armWidth, width, height, similarityScores);
-      }
-      drawHands(props.poseData, g, width, height, similarityScores);
-    },
-    [props.poseData]
-  );
-
+// Adding forwardRef to make it work with React components
+const PoseDrawer = forwardRef(({ poseData, width, height, similarityScores }, ref) => {
+  const armWidth = calculateArmWidth(poseData, width, height);
   return (
-    <Container
-      position={[colAttr.x, colAttr.y]}
-      scale={0.8}
-      ref={ref}
-      poseData={props.poseData}
-    >
-      <Graphics draw={draw} />
+    <Container>
+      <Graphics
+        draw={(g) => {
+          drawBiceps(poseData, g, armWidth, width, height, similarityScores);
+          drawForearms(poseData, g, armWidth, width, height, similarityScores);
+          drawFace(poseData, g, width, height, similarityScores);
+          drawThighs(poseData, g, armWidth, width, height, similarityScores);
+        }}
+      />
     </Container>
   );
 });
 
-export default Pose;
-
-const PoseGraphic = (poseData, colAttr) => {
-  const { width, height } = colAttr;
-  const armWidth = calculateArmWidth(poseData, width, height);
-  const g = new PIXIGraphics();
-  if (poseData.faceLandmarks) {
-    drawFace(poseData, g, width, height);
-  }
-  if (poseData.poseLandmarks) {
-    // NOTE: Order of drawing body section matters, do not reorder
-    drawTorso(poseData, g, width, height);
-    drawAbdomen(poseData, g, width, height);
-    drawBiceps(poseData, g, armWidth, width, height);
-    drawForearms(poseData, g, armWidth, width, height);
-    drawThighs(poseData, g, armWidth, width, height);
-    drawShins(poseData, g, armWidth, width, height);
-  }
-  drawHands(poseData, g, width, height);
-  g.endFill();
-  return g;
-};
-
-export { PoseGraphic };
+export default PoseDrawer;

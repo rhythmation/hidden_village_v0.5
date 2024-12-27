@@ -6,8 +6,8 @@ import {
   POSE_LANDMARKS,
 } from "@mediapipe/holistic/holistic";
 import { blue, yellow, pink } from "../util/colors.jsx";
-import { LANDMARK_GROUPINGS } from "./landmark_utilities";
-import { landmarkToCoordinates, objMap } from "./pose_drawing_utilities";
+import { LANDMARK_GROUPINGS } from "./LandmarkUtils.jsx";
+import { landmarkToCoordinates, objMap } from "../util/PoseDrawingUtils.jsx";
 import { scale } from "chroma-js";
 
 const COLOR_SCALES = {

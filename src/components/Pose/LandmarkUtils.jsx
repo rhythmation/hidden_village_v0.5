@@ -205,7 +205,6 @@ const enrichLandmarks = (newResults) => {
     newResults.poseLandmarks[POSE_LANDMARKS.SOLAR_PLEXIS] = solarPlexis;
   }
 
-
   return newResults;
 };
 

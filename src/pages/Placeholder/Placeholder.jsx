@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import PoseDrawer from "../../components/Pose/index.jsx";
+import PoseDrawer from "../../components/Pose/PoseDrawer.jsx";
 import GetPoseData from "../../components/Pose/MotionCaptureUtils.jsx";
 
 const Tween = () => {

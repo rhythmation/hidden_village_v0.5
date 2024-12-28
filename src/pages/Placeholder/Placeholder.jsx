@@ -14,12 +14,12 @@ const Tween = () => {
                 {loading ? (
                     <p>Loading...</p>
                 ) : (
-                      <PoseDrawer
-                          poseData={poseData}
-                           width={width}
-                         height={height}
-                         similarityScores={null}
-                      />
+                    <PoseDrawer
+                        poseData={poseData}
+                        width={width}
+                        height={height}
+                        similarityScores={null}
+                    />
                 )}
             </div>
         </div>

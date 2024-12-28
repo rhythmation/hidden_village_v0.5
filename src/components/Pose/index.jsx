@@ -1,22 +1,14 @@
 import { useCallback, forwardRef } from "react";
 import { Stage, Container, Graphics } from "@pixi/react";
-import { FACEMESH_FACE_OVAL } from "@mediapipe/holistic/holistic";
+import { FACEMESH_FACE_OVAL} from "@mediapipe/holistic/holistic";
 import { scale } from "chroma-js";
-import { LANDMARK_GROUPINGS } from "./LandmarkUtils";
-import { 
-  landmarkToCoordinates, 
-  objMap 
-} from "./PoseDrawingUtils";
-
-const COLORS = {
-  yellow: 0xFFEB3B,
-  blue: 0x2196F3,
-  pink: 0xFF4081
-};
+import { blue, yellow, pink} from "../util/colors";
+import { LANDMARK_GROUPINGS, enrichLandmarks } from "./LandmarkUtils";
+import { landmarkToCoordinates, objMap } from "./PoseDrawingUtils";
 
 const COLOR_SCALES = {
-  fill: scale(['FFEB3B', 'FF4081']).domain([0, 100]),
-  stroke: scale(['2196F3', 'FF4081']).domain([0, 100])
+  fill: scale([yellow.toString(16), pink.toString(16)]).domain([0, 100]),
+  stroke: scale([blue.toString(16), pink.toString(16)]).domain([0, 100])
 };
 
 const magnitude = (point1, point2) => {
@@ -43,12 +35,12 @@ const connectLandmarks = (g, landmarks, width, height, segmentType, similaritySc
 
   const fillColor = similarity !== undefined
     ? parseInt(COLOR_SCALES.fill(similarity).hex(), 16)
-    : COLORS.yellow;
+    : yellow;
   const strokeColor = similarity !== undefined
     ? parseInt(COLOR_SCALES.stroke(similarity).hex(), 16)
-    : COLORS.blue;
+    : blue;
 
-  g.beginFill(fillColor, 0.6);
+  g.beginFill(fillColor);
   g.lineStyle(4, strokeColor, 1);
   const [first, ...rest] = landmarks;
   g.moveTo(first.x, first.y);
@@ -62,8 +54,8 @@ const connectLandmarks = (g, landmarks, width, height, segmentType, similaritySc
 const connectFinger = (g, landmarks, width, height) => {
   if (!landmarks?.length) return;
   
-  g.beginFill(COLORS.yellow);
-  g.lineStyle(4, COLORS.blue, 1);
+  g.beginFill(yellow);
+  g.lineStyle(4, blue, 1);
   const [first, ...rest] = landmarks.map(landmark => ({
     x: landmark.x * width,
     y: landmark.y * height
@@ -73,10 +65,11 @@ const connectFinger = (g, landmarks, width, height) => {
   g.endFill();
 };
 
+{/* REMOVE HARDCODING OF LANDMARK CONSTANTS LIKE RIGHT SHOULDER AND SOLAR */}
 const calculateArmWidth = (poseData, width, height) => {
   if (!poseData?.poseLandmarks) return 0;
-  const rightShoulder = poseData.poseLandmarks[11];
-  const solarPlexis = poseData.poseLandmarks[23];
+  const rightShoulder = poseData.poseLandmarks[12];
+  const solarPlexis = poseData.poseLandmarks[33];
   
   if (!rightShoulder || !solarPlexis) return 20;
   
@@ -118,7 +111,7 @@ const drawAbdomen = (poseData, g, width, height) => {
   
   const radius = magnitude(pelvisPoint, leftHipPoint);
   
-  g.beginFill(COLORS.yellow);
+  g.beginFill(yellow);
   g.drawCircle(pelvisPoint.x, pelvisPoint.y, radius);
   g.endFill();
 };
@@ -341,8 +334,8 @@ const drawFace = (poseData, g, width, height, similarityScores) => {
   });
   connectLandmarks(g, faceOvalCoords, width, height, "FACE", similarityScores);
 
-  g.beginFill(COLORS.yellow);
-  g.lineStyle(4, COLORS.blue, 1);
+  g.beginFill(yellow);
+  g.lineStyle(4, blue, 1);
 
   poseData.faceLandmarks.forEach((landmark) => {
     const x = landmark.x * width;

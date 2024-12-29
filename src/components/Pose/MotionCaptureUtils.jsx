@@ -3,32 +3,25 @@ import { Holistic } from "@mediapipe/holistic/holistic";
 import { enrichLandmarks } from "./LandmarkUtils.jsx";
 import { useEffect, useState } from "react";
 
-const GetPoseData = () => {
+const GetPoseData = ({ width, height }) => {
     const [loading, setLoading] = useState(true);
     const [poseData, setPoseData] = useState({});
-    const [height, setHeight] = useState(window.innerHeight);
-    const [width, setWidth] = useState(window.innerWidth);
-
-    const handleResize = () => {
-        setHeight(window.innerHeight);
-        setWidth(window.innerWidth);
-    };
 
     useEffect(() => {
         const videoElement = document.getElementsByClassName("input-video")[0];
         const holistic = new Holistic({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
         });
     
         holistic.setOptions({
-          modelComplexity: 1,
-          smoothLandmarks: true,
-          enableSegmentation: true,
-          smoothSegmentation: true,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-          selfieMode: true,
-          refineFaceLandmarks: true,
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: true,
+            smoothSegmentation: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+            selfieMode: true,
+            refineFaceLandmarks: true,
         });
 
         const poseDetectionFrame = async () => {
@@ -40,8 +33,8 @@ const GetPoseData = () => {
 
         const camera = new Camera(videoElement, {
             onFrame: poseDetectionFrame,
-            width: window.innerWidth,
-            height: window.innerHeight,
+            width: width,
+            height: height,
             facingMode: "environment",
         });
 
@@ -52,15 +45,12 @@ const GetPoseData = () => {
         holistic.onResults(updatePoseResults);
         camera.start();
 
-        window.addEventListener("resize", handleResize);
-
         return () => {
             camera.stop();
-            window.removeEventListener("resize", handleResize);
         };
     }, [loading]);
 
-    return { poseData, width, height, loading };
+    return { poseData, loading };
 };
 
 export default GetPoseData;

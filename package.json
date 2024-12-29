@@ -16,6 +16,7 @@
     "chroma-js": "^3.1.2",
     "firebase": "^10.14.0",
     "firebaseui": "^6.1.0",
+    "lucide-react": "^0.469.0",
     "pixi.js": "^8.6.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

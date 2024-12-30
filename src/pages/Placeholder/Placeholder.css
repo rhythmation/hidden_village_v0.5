@@ -1,0 +1,39 @@
+.container {
+    padding: 1.5rem;
+  }
+  
+  .layout {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .main-content {
+    flex: 1;
+  }
+  
+  .back-link {
+    margin-bottom: 1rem;
+    color: #2563eb;
+  }
+  
+  .back-link:hover {
+    color: #1e40af;
+  }
+  
+  .loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 600px;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+  }
+  
+  .pose-display {
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .sidebar {
+    width: 200px;
+  }

@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import PoseDrawer from "../../components/Pose/PoseDrawer.jsx";
 import GetPoseData from "../../components/Pose/MotionCaptureUtils.jsx";
 import { useState } from "react";
-import PoseBox from "../../components/util/PoseBox.jsx";
+import PoseBox from "../../components/util/PoseBox/PoseBox.jsx";
+import './Placeholder.css';
 
 const Tween = () => {
     const width = 800;
@@ -18,21 +19,21 @@ const Tween = () => {
     };
 
     return (
-        <div className="p-6">
-            <div className="flex gap-6">
-                <div className="flex-1">
+        <div className="container">
+            <div className="layout">
+                <div className="main-content">
                     <div className="mb-4">
-                        <Link to="/" className="text-blue-600 hover:text-blue-800">
+                        <Link to="/" className="back-link">
                             Back to Home
                         </Link>
                     </div>
                     
                     {loading ? (
-                        <div className="flex items-center justify-center h-[600px] bg-gray-100 rounded-lg">
+                        <div className="loading-container">
                             <p>Loading...</p>
                         </div>
                     ) : (
-                        <div className="rounded-lg overflow-hidden">
+                        <div className="pose-display">
                             <PoseDrawer
                                 poseData={poseData}
                                 width={width}
@@ -42,12 +43,26 @@ const Tween = () => {
                         </div>
                     )}
                 </div>
-
-                <div className="w-[200px]">
+    
+                <div className="sidebar">
                     <PoseBox
                         width={poseBoxWidth}
                         height={poseBoxHeight}
-                        name="Captured Pose"
+                        name="Start Pose"
+                        currentPoseData={poseData}
+                        onPoseCapture={handlePoseCapture}
+                    />
+                    <PoseBox
+                        width={poseBoxWidth}
+                        height={poseBoxHeight}
+                        name="Intermediate Pose"
+                        currentPoseData={poseData}
+                        onPoseCapture={handlePoseCapture}
+                    />
+                    <PoseBox
+                        width={poseBoxWidth}
+                        height={poseBoxHeight}
+                        name="End Pose"
                         currentPoseData={poseData}
                         onPoseCapture={handlePoseCapture}
                     />

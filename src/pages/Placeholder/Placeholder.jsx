@@ -12,10 +12,26 @@ const Tween = () => {
     const poseBoxHeight = 150;
     
     const { poseData, loading } = GetPoseData({width, height});
-    const [savedPoseData, setSavedPoseData] = useState(null);
+    
+    // Create separate state for each pose box
+    const [startPose, setStartPose] = useState(null);
+    const [intermediatePose, setIntermediatePose] = useState(null);
+    const [endPose, setEndPose] = useState(null);
 
-    const handlePoseCapture = (capturedPose) => {
-        setSavedPoseData(capturedPose);
+    // Handle pose capture for each box separately
+    const handlePoseCapture = {
+        start: (capturedPose) => {
+            setStartPose(capturedPose);
+            console.log("Start pose captured:", capturedPose);
+        },
+        intermediate: (capturedPose) => {
+            setIntermediatePose(capturedPose);
+            console.log("Intermediate pose captured:", capturedPose);
+        },
+        end: (capturedPose) => {
+            setEndPose(capturedPose);
+            console.log("End pose captured:", capturedPose);
+        }
     };
 
     return (
@@ -43,28 +59,28 @@ const Tween = () => {
                         </div>
                     )}
                 </div>
-    
+
                 <div className="sidebar">
                     <PoseBox
                         width={poseBoxWidth}
                         height={poseBoxHeight}
                         name="Start Pose"
                         currentPoseData={poseData}
-                        onPoseCapture={handlePoseCapture}
+                        onPoseCapture={handlePoseCapture.start}
                     />
                     <PoseBox
                         width={poseBoxWidth}
                         height={poseBoxHeight}
                         name="Intermediate Pose"
                         currentPoseData={poseData}
-                        onPoseCapture={handlePoseCapture}
+                        onPoseCapture={handlePoseCapture.intermediate}
                     />
                     <PoseBox
                         width={poseBoxWidth}
                         height={poseBoxHeight}
                         name="End Pose"
                         currentPoseData={poseData}
-                        onPoseCapture={handlePoseCapture}
+                        onPoseCapture={handlePoseCapture.end}
                     />
                 </div>
             </div>

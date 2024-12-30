@@ -11,7 +11,7 @@ import SignUp from "./pages/Auth/signUp/signUp.jsx";
 import StudentAuth from "./pages/Auth/studentAuth/studentAuth.jsx";
 import { useAuth } from "./contexts/AuthContext.jsx";
 import AdminRoute from "./components/util/AdminRoute.jsx";
-import Tween from "./pages/Placeholder/Placeholder.jsx";
+import PlaceHolder from "./pages/Placeholder/Placeholder.jsx";
 
 const App = () => {
   const [isLoggedIn, setisLoggedIn] = useState(false);
@@ -38,7 +38,7 @@ const App = () => {
         <Route path="/signIn" element={<StudentAuth />} />
         <Route path="/AdminSignIn" element={<SignIn />} />
         <Route path="/AdminSignUp" element={<SignUp />} />
-        <Route path="/Placeholder" element={<Tween />} />
+        <Route path="/Placeholder" element={<PlaceHolder />} />
         
 
         {/* Protect routes based on login status */}

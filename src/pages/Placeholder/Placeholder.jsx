@@ -4,44 +4,73 @@ import GetPoseData from "../../components/Pose/MotionCaptureUtils.jsx";
 import { useState } from "react";
 import PoseBox from "../../components/util/PoseBox/PoseBox.jsx";
 import './Placeholder.css';
+import { Tween } from "../../components/Pose/Tween.jsx";
 
-const Tween = () => {
+const Placeholder = () => {
     const width = 800;
     const height = 600;
     const poseBoxWidth = 200;
     const poseBoxHeight = 150;
     
     const { poseData, loading } = GetPoseData({width, height});
+    const [poses, setPoses] = useState([]);
+    const [isAnimating, setIsAnimating] = useState(false);
     
-    // Create separate state for each pose box
-    const [startPose, setStartPose] = useState(null);
-    const [intermediatePose, setIntermediatePose] = useState(null);
-    const [endPose, setEndPose] = useState(null);
-
-    // Handle pose capture for each box separately
     const handlePoseCapture = {
         start: (capturedPose) => {
-            setStartPose(capturedPose);
-            console.log("Start pose captured:", capturedPose);
+            setPoses(current => {
+                const newPoses = [...current];
+                newPoses[0] = capturedPose;
+                return newPoses;
+            });
         },
         intermediate: (capturedPose) => {
-            setIntermediatePose(capturedPose);
-            console.log("Intermediate pose captured:", capturedPose);
+            setPoses(current => {
+                const newPoses = [...current];
+                newPoses[1] = capturedPose;
+                return newPoses;
+            });
         },
         end: (capturedPose) => {
-            setEndPose(capturedPose);
-            console.log("End pose captured:", capturedPose);
+            setPoses(current => {
+                const newPoses = [...current];
+                newPoses[2] = capturedPose;
+                return newPoses;
+            });
         }
     };
+
+    const toggleAnimation = () => {
+        setIsAnimating(!isAnimating);
+    };
+
+    const canAnimate = poses.length === 3 && poses.every(pose => pose !== undefined);
 
     return (
         <div className="container">
             <div className="layout">
                 <div className="main-content">
-                    <div className="mb-4">
+                    <div className="mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Link to="/" className="back-link">
                             Back to Home
                         </Link>
+                        <button 
+                            onClick={toggleAnimation}
+                            disabled={!canAnimate}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: canAnimate ? (isAnimating ? '#dc2626' : '#2563eb') : '#9ca3af',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: canAnimate ? 'pointer' : 'not-allowed',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            {isAnimating ? 'Stop Animation' : 'Start Animation'}
+                        </button>
                     </div>
                     
                     {loading ? (
@@ -54,12 +83,11 @@ const Tween = () => {
                                 poseData={poseData}
                                 width={width}
                                 height={height}
-                                similarityScores={null}
+                                similarityScore={null}
                             />
                         </div>
                     )}
                 </div>
-
                 <div className="sidebar">
                     <PoseBox
                         width={poseBoxWidth}
@@ -83,9 +111,19 @@ const Tween = () => {
                         onPoseCapture={handlePoseCapture.end}
                     />
                 </div>
+                {canAnimate && (
+                    <Tween
+                        poses={poses}
+                        duration={4000}
+                        width={width}
+                        height={height}
+                        loop={true}
+                        isPlaying={isAnimating}
+                    />
+                )}
             </div>
         </div>
     );
 };
 
-export default Tween;
+export default Placeholder;

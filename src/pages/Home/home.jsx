@@ -7,12 +7,15 @@ import { firebaseDB } from "../../services/Firebase/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useAuth } from "../../contexts/AuthContext";
 import Loading from "../../components/common/loading/loading";
+import GetData from "../../components/GetDataModal/GetData";
+import "../../components/GetDataModal/GetData.css"
 
 function Home() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,9 +73,10 @@ function Home() {
           <Link className="home-link" to="/game">Play Game</Link>
           {isAdmin && <Link className="home-link" to="/gameEditor">Editor</Link>}
           <Link className="home-link" to="/settings">Settings</Link>
-          {isAdmin && <button>Get Data</button>}
+          {isAdmin && (<button onClick={() => setIsModalOpen(true)}>Get Data</button>)}
         </div>
       </div>
+      <GetData isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} userId={currentUser}/>
     </div>
   );
 }

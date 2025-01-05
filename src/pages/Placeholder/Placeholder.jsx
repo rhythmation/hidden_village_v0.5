@@ -5,6 +5,7 @@ import { useState } from "react";
 import PoseBox from "../../components/util/PoseBox/PoseBox.jsx";
 import './Placeholder.css';
 import { Tween } from "../../components/Pose/Tween.jsx";
+import { PoseMatch } from "../../components/Pose/PoseMatching.jsx";
 
 const Placeholder = () => {
     const width = 800;
@@ -121,6 +122,10 @@ const Placeholder = () => {
                         isPlaying={isAnimating}
                     />
                 )}
+                <PoseMatch
+                        posesToMatch={poses}
+                        poseData={poseData}
+                />
             </div>
         </div>
     );

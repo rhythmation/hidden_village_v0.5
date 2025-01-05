@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home/home.jsx";
 import Game from "./pages/game/Game.jsx";
-import GameEditor from "./pages/gameEditor/gameEditor.jsx";
+import GameEditor from "./pages/GameEditor/gameEditor.jsx";
 import Settings from "./pages/settings/settings.jsx";
 import SignIn from "./pages/Auth/signIn/signIn.jsx";
 import UserManage from "./pages/UserManage/UserManage.jsx";

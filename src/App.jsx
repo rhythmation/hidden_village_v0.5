@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout.jsx";
 import Home from "./pages/Home/home.jsx";
 import Game from "./pages/game/Game.jsx";
 import GameEditor from "./pages/GameEditor/gameEditor.jsx";
@@ -34,29 +35,31 @@ const App = () => {
   //adding tempory placeholder route for motion capture implementation
   return (
     <Router>
-      <Routes>
-        <Route path="/signIn" element={<StudentAuth />} />
-        <Route path="/AdminSignIn" element={<SignIn />} />
-        <Route path="/AdminSignUp" element={<SignUp />} />
-        <Route path="/Placeholder" element={<PlaceHolder />} />
-        
+      <Layout>
+        <Routes>
+          <Route path="/signIn" element={<StudentAuth />} />
+          <Route path="/AdminSignIn" element={<SignIn />} />
+          <Route path="/AdminSignUp" element={<SignUp />} />
+          <Route path="/Placeholder" element={<PlaceHolder />} />
+          
 
-        {/* Protect routes based on login status */}
-        <Route element={<ProtectedRoute loginStatus={isLoggedIn} />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/game" element={<Game />} />
-          <Route path="/settings" element={<Settings />} />
+          {/* Protect routes based on login status */}
+          <Route element={<ProtectedRoute loginStatus={isLoggedIn} />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/game" element={<Game />} />
+            <Route path="/settings" element={<Settings />} />
 
-          {/* Protect certain routes based on admin status */}
-          <Route element={<AdminRoute adminStatus={adminStatus} />}>
-            <Route path="/userManage" element={<UserManage />} />
-            <Route path="/gameEditor" element={<GameEditor />} />
+            {/* Protect certain routes based on admin status */}
+            <Route element={<AdminRoute adminStatus={adminStatus} />}>
+              <Route path="/userManage" element={<UserManage />} />
+              <Route path="/gameEditor" element={<GameEditor />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Any undefined paths redirect to student sign in */}
-        <Route path="*" element={<StudentAuth/>} />
-      </Routes>
+          {/* Any undefined paths redirect to student sign in */}
+          <Route path="*" element={<StudentAuth/>} />
+        </Routes>
+      </Layout>
     </Router>
   );
 };

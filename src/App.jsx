@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout.jsx";
 import Home from "./pages/Home/home.jsx";
-import Game from "./pages/game/Game.jsx";
+import GameMenu from "./pages/GameMenu/GameMenu.jsx";
 import GameEditor from "./pages/GameEditor/gameEditor.jsx";
 import Settings from "./pages/settings/settings.jsx";
 import SignIn from "./pages/Auth/signIn/signIn.jsx";
@@ -46,7 +46,7 @@ const App = () => {
           {/* Protect routes based on login status */}
           <Route element={<ProtectedRoute loginStatus={isLoggedIn} />}>
             <Route path="/" element={<Home />} />
-            <Route path="/game" element={<Game />} />
+            <Route path="/game" element={<GameMenu />} />
             <Route path="/settings" element={<Settings />} />
 
             {/* Protect certain routes based on admin status */}

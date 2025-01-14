@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function Game() {
+function GameMenu() {
     return (
         <div> <p>Game Page</p>
             <Link to="/"> Back to Home</Link>
@@ -8,4 +8,4 @@ function Game() {
     )
 }
 
-export default Game
+export default GameMenu;

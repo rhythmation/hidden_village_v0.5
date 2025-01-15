@@ -2,21 +2,60 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import PoseDrawer from "../../components/Pose/PoseDrawer.jsx";
 import GetPoseData from "../../components/Pose/MotionCaptureUtils.jsx";
+import PoseCursor from "./PoseCursor";
 import './GamePlayer.css';
+
+// Constants for UI elements
+const UI_CONSTANTS = {
+  NEXT_BUTTON: {
+    SIZE: 80,
+    ARROW_SIZE: 48,
+    HOVER_COLOR: '#ffd700',
+    TRANSITION_DURATION: '0.3s'
+  },
+  CONTAINER: {
+    WIDTH: 1200,
+    HEIGHT: 800
+  }
+};
+
+const Sprite = ({ sprite }) => {
+  const { x, y, appearance, name } = sprite;
+  
+  return (
+    <div 
+      className="sprite-wrapper" 
+      style={{
+        left: `${x}px`,
+        bottom: `${y}px`,
+        width: `${appearance.size}px`,
+        height: `${appearance.size}px`,
+      }}
+    >
+      <img 
+        src={appearance.sprite}
+        alt={name}
+        className="sprite-image"
+      />
+    </div>
+  );
+};
 
 const GamePlayer = ({ gameData, initialLevel, onComplete }) => {
   const [currentDialogue, setCurrentDialogue] = useState(0);
   const [showCursor, setShowCursor] = useState(false);
-  const width = 1200;
-  const height = 800;
+  const { poseData, loading } = GetPoseData({ 
+    width: UI_CONSTANTS.CONTAINER.WIDTH, 
+    height: UI_CONSTANTS.CONTAINER.HEIGHT 
+  });
 
-  const { poseData, loading } = GetPoseData({ width, height });
   const level = gameData.levels.find(l => l.id === initialLevel);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowCursor(true);
     }, level.settings.cursor.delayMS);
+    
     return () => clearTimeout(timer);
   }, [currentDialogue, level.settings.cursor.delayMS]);
 
@@ -29,6 +68,22 @@ const GamePlayer = ({ gameData, initialLevel, onComplete }) => {
     }
   };
 
+  const handleCursorClick = (x, y) => {
+    const nextButton = document.querySelector('.next-button');
+    if (!nextButton) return;
+
+    const rect = nextButton.getBoundingClientRect();
+    const isWithinButton = 
+      x >= rect.left && 
+      x <= rect.right && 
+      y >= rect.top && 
+      y <= rect.bottom;
+
+    if (isWithinButton) {
+      handleNext();
+    }
+  };
+
   const backgroundStyle = level.background ? {
     backgroundImage: `url(${level.background})`,
     backgroundRepeat: 'no-repeat',
@@ -37,104 +92,65 @@ const GamePlayer = ({ gameData, initialLevel, onComplete }) => {
   } : undefined;
 
   return (
-    <div className="game-container">
-      <div className="game-background" style={backgroundStyle}>
-        <div className="nav-container">
-          <Link to="/" className="back-link">
-            Back to Home
-          </Link>
-        </div>
-        
-        <div className="game-content">
-          {/* Left side - Sprites area */}
-          <div className="sprites-container">
-            {level.sprites.map(sprite => (
-              <div
-                key={sprite.id}
-                className="sprite-wrapper"
+    <>
+      <PoseCursor
+        poseData={poseData}
+        containerWidth={window.innerWidth}
+        containerHeight={window.innerHeight}
+        onClick={handleCursorClick}
+        sensitivity={1.5}
+      />
+      <div className="game-container">
+        <div className="game-background" style={backgroundStyle}>
+          <nav className="nav-container">
+            <Link to="/" className="back-link">
+              Back to Home
+            </Link>
+          </nav>
+
+          <main className="game-content">
+            <div className="sprites-container">
+              {level.sprites.map(sprite => (
+                <Sprite key={sprite.id} sprite={sprite} />
+              ))}
+            </div>
+
+            <div className="pose-drawer-container">
+              <PoseDrawer
+                poseData={poseData}
+                width={UI_CONSTANTS.CONTAINER.WIDTH / 3}
+                height={UI_CONSTANTS.CONTAINER.HEIGHT}
+                similarityScore={null}
+              />
+            </div>
+          </main>
+
+          <footer 
+            className="dialogue-box"
+            style={{ 
+              fontSize: `${level.settings.dialogue.fontSettings.baseSize}px`,
+            }}
+          >
+            <p className="dialogue-text">{level.dialogues[currentDialogue]}</p>
+            {showCursor && (
+              <button
+                onClick={handleNext}
+                className="next-button"
                 style={{
-                  left: `${sprite.x}px`,
-                  bottom: `${sprite.y}px`,
-                  width: `${sprite.appearance.size}px`,
-                  height: `${sprite.appearance.size}px`,
+                  width: `${UI_CONSTANTS.NEXT_BUTTON.SIZE}px`,
+                  height: `${UI_CONSTANTS.NEXT_BUTTON.SIZE}px`,
+                  fontSize: `${UI_CONSTANTS.NEXT_BUTTON.ARROW_SIZE}px`,
+                  transition: `all ${UI_CONSTANTS.NEXT_BUTTON.TRANSITION_DURATION} ease`
                 }}
+                aria-label="Next"
               >
-                {sprite.appearance.sprite ? (
-                  <img 
-                    src={sprite.appearance.sprite}
-                    alt={sprite.name}
-                    className="sprite-image"
-                  />
-                ) : (
-                  <div className="sprite-shape">
-                    {sprite.appearance.shape === 'square' && (
-                      <div 
-                        className="square-shape"
-                        style={{ backgroundColor: sprite.appearance.color || '#4299e1' }}
-                      >
-                        {sprite.appearance.eyes && (
-                          <div className="eyes">
-                            <div className="eye left" />
-                            <div className="eye right" />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {sprite.appearance.shape === 'triangle' && (
-                      <div 
-                        className="triangle-shape"
-                        style={{ 
-                          borderBottomColor: sprite.appearance.color || '#4299e1',
-                          borderLeftWidth: `${sprite.appearance.size/2}px`,
-                          borderRightWidth: `${sprite.appearance.size/2}px`,
-                          borderBottomWidth: `${sprite.appearance.size}px`
-                        }}
-                      >
-                        {sprite.appearance.eyes && (
-                          <div className="eyes">
-                            <div className="eye left" />
-                            <div className="eye right" />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Right side - Pose detection area */}
-          <div >
-            <PoseDrawer
-              poseData={poseData}
-              width={width / 2}
-              height={height}
-              similarityScore={null}
-            />
-          </div>
-        </div>
-
-        {/* Dialogue Box */}
-        <div 
-          className="dialogue-box"
-          style={{ 
-            fontSize: `${level.settings.dialogue.fontSettings.baseSize}px`
-          }}
-        >
-          <p className="dialogue-text">{level.dialogues[currentDialogue]}</p>
-          {showCursor && (
-            <button
-              onClick={handleNext}
-              className="next-button"
-              aria-label="Next"
-            >
-              →
-            </button>
-          )}
+                →
+              </button>
+            )}
+          </footer>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

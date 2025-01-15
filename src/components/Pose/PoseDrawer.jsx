@@ -279,7 +279,8 @@ const PoseDrawer = forwardRef(({
 
   {/* Pixi.js options */}
   const stageOptions = useMemo(() => ({
-    backgroundColor: 0x333333,
+    backgroundColor: 0xffffff,
+    backgroundAlpha: 0,
     resolution: window.devicePixelRatio || 1,
     antialias: true,
     autoDensity: true

@@ -33,6 +33,7 @@ const DEFAULTS = {
     }
 };
 
+//TODO: Combine this with database
 export function gameManager() {
     const [gameData, setGameData] = useState({
         games: [

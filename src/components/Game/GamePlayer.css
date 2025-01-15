@@ -1,0 +1,145 @@
+.game-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .game-background {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  
+  .nav-container {
+    padding: 1rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+  }
+  
+  .back-link {
+    color: #ffffff;
+    text-decoration: none;
+  }
+  
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  
+  .game-content {
+    display: flex;
+    height: calc(100vh - 150px);
+    position: relative;
+  }
+  
+  .sprites-container {
+    flex: 1;
+    position: relative;
+  }
+  
+  .sprite-wrapper {
+    position: absolute;
+    transform-origin: center;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .sprite-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .sprite-shape {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  
+  .square-shape {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    position: relative;
+  }
+  
+  .triangle-shape {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-color: transparent transparent #4299e1 transparent;
+    position: relative;
+  }
+  
+  .eyes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .eye {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: black;
+    border-radius: 50%;
+  }
+  
+  .eye.left {
+    top: 25%;
+    left: 25%;
+  }
+  
+  .eye.right {
+    top: 25%;
+    right: 25%;
+  }
+  
+  .pose-container {
+    flex: 1;
+    opacity: 0;
+    position: relative;
+    border-left: 2px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .dialogue-box {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    min-height: 150px;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.7),
+      rgba(0, 0, 0, 0.8)
+    );
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .dialogue-text {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .next-button {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+  }
+  
+  .next-button:hover {
+    color: #ffd700;
+  }
